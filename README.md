@@ -1,77 +1,127 @@
 # PhishLens — Local Threat Digest
 
-A lightweight prototype that turns noisy, scattered local cyber-safety reports into a clear, calm, actionable digest. Built as a Palo Alto Networks case study.
+A lightweight full-stack prototype that turns noisy, scattered local cyber-safety reports into a **clear, calm, actionable digest**. Built as a Palo Alto Networks case study.
 
-## Problem
+## Problem Statement
 
-Phishing texts, scam calls, and local data breaches generate lots of fragmented reports. Residents — especially nontechnical users — need a single place to see what's happening in their neighborhood, understand the risk, and know what to do next.
+Phishing texts, scam calls, and local data breaches generate fragmented reports across neighborhoods. Residents — especially nontechnical users, elderly community members, and remote workers — need a single place to see what's happening in their area, understand the risk in plain language, and know exactly what to do next.
 
-## Features (planned)
+Existing tools are either too technical, too alarmist, or don't aggregate local signals at all.
 
-- Submit local threat / scam / phishing reports
-- Dashboard of incidents with search and filters
-- Update report status (new → acknowledged → resolved …)
-- AI-generated digest summaries with a deterministic fallback when AI is unavailable
-- Synthetic data only — no live scraping
+## Core Flow
 
-## Tech Stack
+1. **Submit** — Users file a local threat / scam / phishing report via a simple form (title, description, neighborhood, category, source type).
+2. **View** — A dashboard displays incident cards with category, status, neighborhood, and a truncated summary. Search and filter controls narrow results by text, category, neighborhood, or status.
+3. **Update** — Report status can be changed (new → acknowledged → duplicate → resolved → needs_review).
+4. **Digest** — `GET /api/digest` generates a summary of matching incidents, using AI when available and a deterministic fallback when not.
 
-| Layer | Choice |
-|-------|--------|
-| Frontend | React + Vite |
-| Backend | Flask (Python) |
-| Storage | Local JSON files |
-| AI | OpenAI API (optional) with rule-based fallback |
-| Tests | pytest |
+## AI Summary + Deterministic Fallback
 
-## Project Structure
+The app implements **one strong AI capability: summarization**.
 
-```
-├── backend/            # Flask API (coming soon)
-│   └── requirements.txt
-├── frontend/           # React app (coming soon)
-│   └── package.json
-├── data/               # Synthetic seed data
-│   ├── incidents.json
-│   ├── trusted_sources.json
-│   └── playbooks.json
-├── .env.example        # Environment variable template
-└── README.md
-```
+| Path | When it runs | How it works |
+|------|-------------|--------------|
+| **AI** | API key is configured and the call succeeds | Sends grouped reports to OpenAI (gpt-4o-mini) or Gemini via the OpenAI-compatible SDK. Returns a structured JSON digest: summary, explanation, actions, confidence note. |
+| **Fallback** | No key set, API error, timeout, or malformed response | Keyword-based category detection → grouping by category/neighborhood/time proximity → template-based summary and action checklist from `data/playbooks.json`. Zero network calls. |
 
-## Setup (will be expanded)
+The response always includes a `"source"` field (`"ai"`, `"fallback"`, or `"none"`) so the frontend knows which path produced the digest. AI output is treated as **assistive, never authoritative** — confidence language is always present.
+
+## Setup
 
 ```bash
-# 1. Copy env template
-cp .env.example .env
+# 1. Clone and copy env template
+git clone <repo-url> && cd PhishLens-Local-Threat-Digest
+cp .env.example .env       # then edit .env with your API key (optional)
 
 # 2. Backend
 cd backend
 python -m venv venv
-source venv/bin/activate   # Windows: venv\Scripts\activate
+venv\Scripts\activate       # macOS/Linux: source venv/bin/activate
 pip install -r requirements.txt
+python app.py               # runs on http://localhost:5000
 
-# 3. Frontend
-cd ../frontend
+# 3. Frontend (separate terminal)
+cd frontend
 npm install
+npm run dev                 # runs on http://localhost:3000, proxies /api to Flask
 ```
 
-## Data
+## .env Usage
 
-All data is **synthetic**. No real incidents, users, or addresses are used. See the `data/` directory for seed files.
+Copy `.env.example` to `.env` in the project root. The backend reads it via `python-dotenv`.
 
-## AI + Fallback
+| Variable | Purpose | Default |
+|----------|---------|---------|
+| `AI_PROVIDER` | `openai` or `gemini` | `openai` |
+| `OPENAI_API_KEY` | OpenAI API key (required for AI path) | — |
+| `GEMINI_API_KEY` | Gemini API key (only if provider is `gemini`) | — |
+| `MODEL_NAME` | Override the model name | `gpt-4o-mini` / `gemini-2.0-flash-lite` |
+| `PORT` | Flask server port | `5000` |
 
-- When an API key is configured, the app sends grouped reports to the AI for a digest summary.
-- When AI is unavailable (no key, network error, malformed response), a **deterministic rule-based fallback** generates summaries from keyword detection + playbook templates.
-- AI output is treated as assistive, never authoritative.
+If no valid API key is set, the app runs entirely on the deterministic fallback — no errors, no degradation.
 
-## Known Limitations
+## Synthetic Data
 
-- Prototype scope — not production-ready
-- No authentication or user accounts
-- No real data ingestion or scraping
-- AI summaries may be inaccurate; confidence language is always shown
+All data is **synthetic**. No real incidents, users, or addresses are used.
+
+| File | Contents |
+|------|----------|
+| `data/incidents.json` | 10 seed incidents across 7 categories and 5 neighborhoods |
+| `data/trusted_sources.json` | 5 verification sources (government, bank, FTC, ISP, nonprofit) |
+| `data/playbooks.json` | Category-keyed templates with summary, explanation, and action checklists |
+
+## Tests
+
+Two focused pytest tests covering the deterministic fallback:
+
+```bash
+cd backend
+python -m pytest tests/test_fallback.py -v
+```
+
+| Test | What it verifies |
+|------|-----------------|
+| `test_groups_similar_phishing_reports` | Two phishing SMS reports in the same neighborhood are grouped correctly, produce a template summary, include carrier-report action, and note same-category confidence |
+| `test_handles_low_information_report_with_safe_fallback` | A single vague report with no category detects as "unknown", returns a complete digest, and notes limited data |
+
+## Project Structure
+
+```
+├── backend/
+│   ├── app.py              # Flask routes (CRUD + /api/digest)
+│   ├── data_store.py       # JSON file store with in-memory cache
+│   ├── schemas.py          # Validation constants and helpers
+│   ├── summarizer.py       # AI summarization adapter (OpenAI / Gemini)
+│   ├── fallback.py         # Deterministic fallback summarizer
+│   ├── requirements.txt
+│   └── tests/
+│       └── test_fallback.py
+├── frontend/
+│   ├── src/
+│   │   ├── App.jsx         # Dashboard with search, filters, cards
+│   │   ├── ReportForm.jsx  # Submit-report form
+│   │   ├── App.css
+│   │   └── main.jsx
+│   ├── index.html
+│   ├── vite.config.js
+│   └── package.json
+├── data/
+│   ├── incidents.json
+│   ├── trusted_sources.json
+│   └── playbooks.json
+├── .env.example
+└── README.md
+```
+
+## Limitations and Tradeoffs
+
+- **Prototype scope** — not production-ready; no auth, no database, no deployment config.
+- **JSON file storage** — simple but not concurrent-safe; acceptable for a single-user demo.
+- **AI summaries may be inaccurate** — confidence language and the `source` field mitigate this. The fallback is always available.
+- **Fallback is template-based** — produces correct but generic output; lacks the nuance of AI summaries.
+- **No real data ingestion** — synthetic only; no scraping, no live feeds, no social media.
+- **Keyword detection is basic** — covers common terms but won't catch novel phrasing. A production system would use NLP or fine-tuned classifiers.
+- **No incident detail page yet** — dashboard shows cards but there's no dedicated single-incident view with full digest.
 
 ## License
 
