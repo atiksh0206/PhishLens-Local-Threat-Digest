@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import ReportForm from "./ReportForm";
 
 const CATEGORIES = [
   "",
@@ -52,6 +53,9 @@ export default function App() {
   const [neighborhood, setNeighborhood] = useState("");
   const [status, setStatus] = useState("");
 
+  // Form visibility
+  const [showForm, setShowForm] = useState(false);
+
   const fetchIncidents = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -83,78 +87,99 @@ export default function App() {
       <header className="header">
         <h1>🛡️ PhishLens</h1>
         <p className="subtitle">Local Threat Digest</p>
+        <button
+          className="btn-primary"
+          style={{ marginTop: "0.75rem" }}
+          onClick={() => setShowForm((v) => !v)}
+        >
+          {showForm ? "Back to dashboard" : "+ Submit a report"}
+        </button>
       </header>
 
-      {/* Search and filters */}
-      <div className="controls">
-        <input
-          type="text"
-          className="search-input"
-          placeholder="Search reports…"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
+      {showForm && (
+        <ReportForm
+          onCreated={() => {
+            setShowForm(false);
+            fetchIncidents();
+          }}
+          onCancel={() => setShowForm(false)}
         />
-        <select value={category} onChange={(e) => setCategory(e.target.value)}>
-          <option value="">All categories</option>
-          {CATEGORIES.filter(Boolean).map((c) => (
-            <option key={c} value={c}>
-              {formatLabel(c)}
-            </option>
-          ))}
-        </select>
-        <select value={neighborhood} onChange={(e) => setNeighborhood(e.target.value)}>
-          <option value="">All neighborhoods</option>
-          {NEIGHBORHOODS.filter(Boolean).map((n) => (
-            <option key={n} value={n}>
-              {n}
-            </option>
-          ))}
-        </select>
-        <select value={status} onChange={(e) => setStatus(e.target.value)}>
-          <option value="">All statuses</option>
-          {STATUSES.filter(Boolean).map((s) => (
-            <option key={s} value={s}>
-              {formatLabel(s)}
-            </option>
-          ))}
-        </select>
-      </div>
+      )}
 
-      {/* Results */}
-      <p className="result-count">
-        {loading ? "Loading…" : `${count} report${count !== 1 ? "s" : ""} found`}
-      </p>
-
-      {error && <p className="error-msg">Error: {error}</p>}
-
-      <div className="card-grid">
-        {incidents.map((inc) => (
-          <div key={inc.id} className="card">
-            <div className="card-header">
-              <span className="card-category">{formatLabel(inc.suspected_category)}</span>
-              <span
-                className="card-status"
-                style={{ backgroundColor: statusColor(inc.status) }}
-              >
-                {formatLabel(inc.status)}
-              </span>
-            </div>
-            <h3 className="card-title">{inc.title}</h3>
-            <p className="card-desc">
-              {inc.description.length > 140
-                ? inc.description.slice(0, 140) + "…"
-                : inc.description}
-            </p>
-            <div className="card-meta">
-              <span>📍 {inc.neighborhood}</span>
-              <span>🕐 {new Date(inc.timestamp).toLocaleDateString()}</span>
-            </div>
+      {!showForm && (
+        <>
+          {/* Search and filters */}
+          <div className="controls">
+            <input
+              type="text"
+              className="search-input"
+              placeholder="Search reports…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            <select value={category} onChange={(e) => setCategory(e.target.value)}>
+              <option value="">All categories</option>
+              {CATEGORIES.filter(Boolean).map((c) => (
+                <option key={c} value={c}>
+                  {formatLabel(c)}
+                </option>
+              ))}
+            </select>
+            <select value={neighborhood} onChange={(e) => setNeighborhood(e.target.value)}>
+              <option value="">All neighborhoods</option>
+              {NEIGHBORHOODS.filter(Boolean).map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
+            </select>
+            <select value={status} onChange={(e) => setStatus(e.target.value)}>
+              <option value="">All statuses</option>
+              {STATUSES.filter(Boolean).map((s) => (
+                <option key={s} value={s}>
+                  {formatLabel(s)}
+                </option>
+              ))}
+            </select>
           </div>
-        ))}
-      </div>
 
-      {!loading && incidents.length === 0 && !error && (
-        <p className="empty-msg">No reports match your filters.</p>
+          {/* Results */}
+          <p className="result-count">
+            {loading ? "Loading…" : `${count} report${count !== 1 ? "s" : ""} found`}
+          </p>
+
+          {error && <p className="error-msg">Error: {error}</p>}
+
+          <div className="card-grid">
+            {incidents.map((inc) => (
+              <div key={inc.id} className="card">
+                <div className="card-header">
+                  <span className="card-category">{formatLabel(inc.suspected_category)}</span>
+                  <span
+                    className="card-status"
+                    style={{ backgroundColor: statusColor(inc.status) }}
+                  >
+                    {formatLabel(inc.status)}
+                  </span>
+                </div>
+                <h3 className="card-title">{inc.title}</h3>
+                <p className="card-desc">
+                  {inc.description.length > 140
+                    ? inc.description.slice(0, 140) + "…"
+                    : inc.description}
+                </p>
+                <div className="card-meta">
+                  <span>📍 {inc.neighborhood}</span>
+                  <span>🕐 {new Date(inc.timestamp).toLocaleDateString()}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {!loading && incidents.length === 0 && !error && (
+            <p className="empty-msg">No reports match your filters.</p>
+          )}
+        </>
       )}
     </div>
   );
