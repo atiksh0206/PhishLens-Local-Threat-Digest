@@ -56,6 +56,12 @@ export default function App() {
   // Form visibility
   const [showForm, setShowForm] = useState(false);
 
+  // Digest state
+  const [digest, setDigest] = useState(null);
+  const [digestLoading, setDigestLoading] = useState(false);
+  const [digestError, setDigestError] = useState(null);
+  const [forceFallback, setForceFallback] = useState(false);
+
   const fetchIncidents = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -81,6 +87,26 @@ export default function App() {
   useEffect(() => {
     fetchIncidents();
   }, [fetchIncidents]);
+
+  const fetchDigest = async () => {
+    setDigestLoading(true);
+    setDigestError(null);
+    setDigest(null);
+    try {
+      const params = new URLSearchParams();
+      if (category) params.set("category", category);
+      if (neighborhood) params.set("neighborhood", neighborhood);
+      if (status) params.set("status", status);
+      if (forceFallback) params.set("force_fallback", "1");
+      const res = await fetch(`/api/digest?${params.toString()}`);
+      if (!res.ok) throw new Error(`Server error: ${res.status}`);
+      setDigest(await res.json());
+    } catch (err) {
+      setDigestError(err.message);
+    } finally {
+      setDigestLoading(false);
+    }
+  };
 
   return (
     <div className="app">
@@ -142,6 +168,49 @@ export default function App() {
               ))}
             </select>
           </div>
+
+          {/* Digest controls */}
+          <div className="digest-controls">
+            <button className="btn-primary" onClick={fetchDigest} disabled={digestLoading}>
+              {digestLoading ? "Generating…" : "Generate Digest"}
+            </button>
+            <label className="fallback-toggle">
+              <input
+                type="checkbox"
+                checked={forceFallback}
+                onChange={(e) => setForceFallback(e.target.checked)}
+              />
+              Force fallback (skip AI)
+            </label>
+          </div>
+
+          {digestError && <p className="error-msg">Digest error: {digestError}</p>}
+
+          {digest && (
+            <div className="digest-card">
+              <div className="digest-header">
+                <h2>Threat Digest</h2>
+                <span className={`digest-source ${digest.source}`}>
+                  {digest.source === "ai" ? "AI Summary" : digest.source === "fallback" ? "Rule-Based" : "No Data"}
+                </span>
+              </div>
+              <p className="digest-summary">{digest.digest.summary}</p>
+              {digest.digest.explanation && (
+                <p className="digest-explanation">{digest.digest.explanation}</p>
+              )}
+              {digest.digest.actions.length > 0 && (
+                <>
+                  <h4>Recommended Actions</h4>
+                  <ul className="digest-actions">
+                    {digest.digest.actions.map((a, i) => (
+                      <li key={i}>{a}</li>
+                    ))}
+                  </ul>
+                </>
+              )}
+              <p className="digest-confidence">{digest.digest.confidence_note}</p>
+            </div>
+          )}
 
           {/* Results */}
           <p className="result-count">

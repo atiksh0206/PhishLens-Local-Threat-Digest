@@ -132,10 +132,14 @@ def digest():
             },
         })
 
-    # Try AI first
-    result = summarize_incidents(incidents)
-    if result is not None:
-        return jsonify({"source": "ai", "digest": result})
+    # Allow forcing fallback via query param (useful for demos)
+    force_fallback = request.args.get("force_fallback", "").lower() in ("1", "true")
+
+    if not force_fallback:
+        # Try AI first
+        result = summarize_incidents(incidents)
+        if result is not None:
+            return jsonify({"source": "ai", "digest": result})
 
     # Deterministic fallback
     result = fallback_summarize(incidents)
