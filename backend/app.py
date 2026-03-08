@@ -9,6 +9,8 @@ from flask_cors import CORS
 
 from data_store import get_incidents, get_incident_by_id, add_incident, update_incident_status
 from schemas import validate_incident, ALLOWED_STATUSES
+from summarizer import summarize_incidents
+from fallback import fallback_summarize
 
 load_dotenv()
 
@@ -101,6 +103,43 @@ def patch_incident_status(incident_id):
 
     updated = update_incident_status(incident_id, new_status)
     return jsonify({"incident": updated})
+
+
+@app.route("/api/digest", methods=["GET"])
+def digest():
+    """Generate a summary digest for current incidents.
+
+    Tries AI summarization first; if it returns None (no key, failure,
+    timeout), falls back to the deterministic template-based summarizer.
+
+    Query params: same filters as GET /api/incidents.
+    """
+    incidents = get_incidents(
+        q=request.args.get("q"),
+        category=request.args.get("category"),
+        neighborhood=request.args.get("neighborhood"),
+        status=request.args.get("status"),
+    )
+
+    if not incidents:
+        return jsonify({
+            "source": "none",
+            "digest": {
+                "summary": "No incidents match the current filters.",
+                "explanation": "",
+                "actions": [],
+                "confidence_note": "No data to analyze.",
+            },
+        })
+
+    # Try AI first
+    result = summarize_incidents(incidents)
+    if result is not None:
+        return jsonify({"source": "ai", "digest": result})
+
+    # Deterministic fallback
+    result = fallback_summarize(incidents)
+    return jsonify({"source": "fallback", "digest": result})
 
 
 if __name__ == "__main__":
