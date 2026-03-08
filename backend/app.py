@@ -3,16 +3,14 @@ PhishLens backend — Flask application.
 """
 
 import os
+from dotenv import load_dotenv
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
-from data_store import get_incidents
+from data_store import get_incidents, add_incident
+from schemas import validate_incident
 
-try:
-    from dotenv import load_dotenv
-    load_dotenv()
-except ImportError:
-    pass
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
@@ -41,6 +39,35 @@ def list_incidents():
     )
 
     return jsonify({"incidents": incidents, "count": len(incidents)})
+
+
+@app.route("/api/incidents", methods=["POST"])
+def create_incident():
+    """Create a new incident report.
+
+    Expects a JSON body with at minimum: title, description, neighborhood.
+    Returns 201 with the created incident or 400 with validation errors.
+    """
+    data = request.get_json(silent=True)
+    if not data:
+        return jsonify({"errors": ["Request body must be valid JSON."]}), 400
+
+    errors = validate_incident(data)
+
+    # Validate timestamp format when provided
+    timestamp = data.get("timestamp")
+    if timestamp:
+        try:
+            from datetime import datetime
+            datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
+        except (ValueError, AttributeError):
+            errors.append("Timestamp is invalid.")
+
+    if errors:
+        return jsonify({"errors": errors}), 400
+
+    incident = add_incident(data)
+    return jsonify({"incident": incident}), 201
 
 
 if __name__ == "__main__":
