@@ -1,0 +1,78 @@
+{
+  "phishing_sms": {
+    "summary_template": "Possible phishing SMS campaign reported by {count} user(s) in {neighborhood}.",
+    "explanation": "These messages typically impersonate trusted organizations and include links to fake websites designed to steal personal information.",
+    "actions": [
+      "Do not click any links in the message.",
+      "Do not reply to the sender.",
+      "Block the sending number.",
+      "Report the message to your carrier by forwarding it to 7726 (SPAM).",
+      "If you clicked a link, change any passwords you may have entered and monitor your accounts."
+    ]
+  },
+  "phishing_email": {
+    "summary_template": "Possible phishing email campaign reported by {count} user(s) in {neighborhood}.",
+    "explanation": "These emails often mimic legitimate services and create urgency to trick recipients into revealing credentials or payment details.",
+    "actions": [
+      "Do not click links or download attachments from the email.",
+      "Check the sender address carefully for misspellings.",
+      "Verify the claim by contacting the organization directly through their official website.",
+      "Mark the email as phishing or spam in your email client.",
+      "If you entered credentials, change your password immediately and enable MFA."
+    ]
+  },
+  "scam_call": {
+    "summary_template": "Possible scam call activity reported by {count} user(s) in {neighborhood}.",
+    "explanation": "Scam callers often impersonate government agencies, banks, or service providers and pressure victims into making immediate payments.",
+    "actions": [
+      "Hang up immediately if pressured for payment or personal information.",
+      "Do not call back numbers left in voicemails.",
+      "Verify the caller's claim by contacting the organization through its official number.",
+      "Register your number on the National Do Not Call Registry.",
+      "Report the call to the FTC at reportfraud.ftc.gov."
+    ]
+  },
+  "account_compromise": {
+    "summary_template": "Possible account compromise affecting {count} user(s) in {neighborhood}.",
+    "explanation": "Unauthorized access to accounts may result from credential theft, data breaches, or weak passwords.",
+    "actions": [
+      "Change your password immediately on the affected account.",
+      "Enable multi-factor authentication (MFA) if available.",
+      "Check for unauthorized activity such as sent emails or purchases.",
+      "Run a security scan on your devices.",
+      "Contact the service provider's support team to report the compromise."
+    ]
+  },
+  "local_breach_alert": {
+    "summary_template": "Data breach reported affecting users in {neighborhood}.",
+    "explanation": "A local business or service has disclosed a data breach that may have exposed personal information.",
+    "actions": [
+      "Review the breach notification for details on what data was exposed.",
+      "Change passwords for any accounts associated with the breached service.",
+      "Monitor your financial statements for unauthorized charges.",
+      "Consider placing a fraud alert or credit freeze with major credit bureaus.",
+      "Watch for follow-up phishing attempts that reference the breach."
+    ]
+  },
+  "fraud_report": {
+    "summary_template": "Possible fraud activity reported by {count} user(s) in {neighborhood}.",
+    "explanation": "In-person or online fraud attempts may target personal information, financial details, or identity documents.",
+    "actions": [
+      "Do not share personal information with unverified individuals.",
+      "Ask for official identification and verify it independently.",
+      "Report the incident to local law enforcement.",
+      "File a report with the FTC at reportfraud.ftc.gov.",
+      "Alert neighbors through trusted community channels."
+    ]
+  },
+  "unknown": {
+    "summary_template": "Unclassified report(s) submitted by {count} user(s) in {neighborhood}.",
+    "explanation": "This report does not match a known threat category. It may require manual review to determine its nature.",
+    "actions": [
+      "Review the report details for any identifying information.",
+      "Do not take action on suspicious requests until verified.",
+      "If the report seems related to a known threat type, update its category.",
+      "When in doubt, consult official sources before responding."
+    ]
+  }
+}

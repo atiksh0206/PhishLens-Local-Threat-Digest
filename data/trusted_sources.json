@@ -1,0 +1,37 @@
+[
+  {
+    "id": "src-001",
+    "name": "City of Springfield Official Website",
+    "url": "https://www.springfield.gov",
+    "type": "government",
+    "description": "Official city government portal for alerts and public notices."
+  },
+  {
+    "id": "src-002",
+    "name": "First National Bank",
+    "url": "https://www.firstnationalbank.example.com",
+    "type": "financial_institution",
+    "description": "Official bank website. Use this to verify any communications claiming to be from the bank."
+  },
+  {
+    "id": "src-003",
+    "name": "FTC Report Fraud",
+    "url": "https://reportfraud.ftc.gov",
+    "type": "government",
+    "description": "Federal Trade Commission portal for reporting scams and fraud."
+  },
+  {
+    "id": "src-004",
+    "name": "Local ISP Support",
+    "url": "https://support.localconnect.example.com",
+    "type": "service_provider",
+    "description": "Support portal for the local internet service provider."
+  },
+  {
+    "id": "src-005",
+    "name": "Anti-Phishing Working Group",
+    "url": "https://apwg.org",
+    "type": "nonprofit",
+    "description": "Industry coalition focused on eliminating phishing and related fraud."
+  }
+]

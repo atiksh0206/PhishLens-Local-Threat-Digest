@@ -1,0 +1,112 @@
+[
+  {
+    "id": "inc-001",
+    "title": "Suspicious SMS claiming package delivery failure",
+    "description": "Received a text message saying my package could not be delivered and asking me to click a link to reschedule. The link goes to a site that asks for credit card information. Several neighbors got the same message.",
+    "source_type": "sms",
+    "neighborhood": "Riverside",
+    "timestamp": "2026-03-01T09:14:00Z",
+    "reporter_type": "resident",
+    "suspected_category": "phishing_sms",
+    "status": "new"
+  },
+  {
+    "id": "inc-002",
+    "title": "Fake utility company email requesting payment",
+    "description": "Email from 'PowerGrid Services' threatening immediate disconnection unless payment is made through a provided link. The sender address does not match the real utility provider. Email contains grammatical errors.",
+    "source_type": "email",
+    "neighborhood": "Maple Heights",
+    "timestamp": "2026-03-01T11:30:00Z",
+    "reporter_type": "resident",
+    "suspected_category": "phishing_email",
+    "status": "new"
+  },
+  {
+    "id": "inc-003",
+    "title": "Robocall about expiring car warranty",
+    "description": "Automated call claiming my car warranty is about to expire and urging me to press 1 to speak to a representative. The caller ID showed a local number but the call originated from out of state.",
+    "source_type": "phone",
+    "neighborhood": "Downtown",
+    "timestamp": "2026-03-02T14:45:00Z",
+    "reporter_type": "resident",
+    "suspected_category": "scam_call",
+    "status": "acknowledged"
+  },
+  {
+    "id": "inc-004",
+    "title": "Multiple residents report compromised email accounts",
+    "description": "At least three residents in Oak Park reported that their email accounts were sending messages they did not write. All use the same local ISP email service. Possible credential breach at the provider level.",
+    "source_type": "community_report",
+    "neighborhood": "Oak Park",
+    "timestamp": "2026-03-02T16:20:00Z",
+    "reporter_type": "community_group",
+    "suspected_category": "account_compromise",
+    "status": "needs_review"
+  },
+  {
+    "id": "inc-005",
+    "title": "Phishing SMS posing as bank fraud alert",
+    "description": "Text message claiming to be from First National Bank saying suspicious activity was detected on my account. Asks to call a number that is not the bank's official line. Two neighbors received the same text.",
+    "source_type": "sms",
+    "neighborhood": "Riverside",
+    "timestamp": "2026-03-03T08:05:00Z",
+    "reporter_type": "resident",
+    "suspected_category": "phishing_sms",
+    "status": "new"
+  },
+  {
+    "id": "inc-006",
+    "title": "Local gym data breach notification",
+    "description": "FitZone Gym sent an email to members notifying them of a data breach that may have exposed names, email addresses, and payment card last-four digits. Breach occurred in late February.",
+    "source_type": "email",
+    "neighborhood": "Maple Heights",
+    "timestamp": "2026-03-03T10:00:00Z",
+    "reporter_type": "business",
+    "suspected_category": "local_breach_alert",
+    "status": "acknowledged"
+  },
+  {
+    "id": "inc-007",
+    "title": "Door-to-door solicitor asking for SSN",
+    "description": "A person going door to door in Lakeview claiming to be from a government assistance program asked for Social Security numbers and bank details. No official documentation was provided.",
+    "source_type": "in_person",
+    "neighborhood": "Lakeview",
+    "timestamp": "2026-03-04T13:30:00Z",
+    "reporter_type": "resident",
+    "suspected_category": "fraud_report",
+    "status": "new"
+  },
+  {
+    "id": "inc-008",
+    "title": "Strange email with vague subject line",
+    "description": "Got a weird email. Not sure what it is.",
+    "source_type": "email",
+    "neighborhood": "Downtown",
+    "timestamp": "2026-03-05T17:00:00Z",
+    "reporter_type": "resident",
+    "suspected_category": "unknown",
+    "status": "new"
+  },
+  {
+    "id": "inc-009",
+    "title": "Fake parking ticket QR code on windshield",
+    "description": "Found a printed notice on my car windshield that looks like a parking citation. It includes a QR code to pay the fine online. The city parking authority confirmed they did not issue it. The QR code leads to a phishing site.",
+    "source_type": "physical",
+    "neighborhood": "Downtown",
+    "timestamp": "2026-03-05T09:15:00Z",
+    "reporter_type": "resident",
+    "suspected_category": "phishing_email",
+    "status": "new"
+  },
+  {
+    "id": "inc-010",
+    "title": "Scam call impersonating IRS",
+    "description": "Received a call from someone claiming to be an IRS agent saying I owe back taxes and will be arrested if I do not pay immediately with gift cards. The caller was aggressive and threatening.",
+    "source_type": "phone",
+    "neighborhood": "Oak Park",
+    "timestamp": "2026-03-06T11:45:00Z",
+    "reporter_type": "resident",
+    "suspected_category": "scam_call",
+    "status": "new"
+  }
+]
