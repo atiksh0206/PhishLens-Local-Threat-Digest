@@ -71,3 +71,57 @@ def test_handles_low_information_report_with_safe_fallback():
 
     # Should still provide some generic actions from the "unknown" playbook
     assert len(result["actions"]) >= 1
+
+
+def test_keyword_detection_overrides_unknown_category():
+    """An incident marked 'unknown' but with clear email keywords should
+    be detected as phishing_email."""
+    inc = {
+        "title": "Weird email from support",
+        "description": "Got a spoofed email asking me to verify my login",
+        "neighborhood": "Maple Heights",
+        "suspected_category": "unknown",
+    }
+    assert detect_category(inc) == "phishing_email"
+
+
+def test_multiple_categories_across_neighborhoods():
+    """Reports spanning different categories and neighborhoods should
+    produce multiple summary lines and deduplicated actions."""
+    incidents = [
+        {
+            "title": "Phishing text",
+            "description": "Fake text message from bank",
+            "neighborhood": "Riverside",
+            "suspected_category": "phishing_sms",
+            "timestamp": "2026-03-01",
+        },
+        {
+            "title": "IRS scam call",
+            "description": "Caller impersonating the IRS demanding payment",
+            "neighborhood": "Oak Park",
+            "suspected_category": "scam_call",
+            "timestamp": "2026-03-02",
+        },
+    ]
+
+    result = fallback_summarize(incidents)
+
+    # Both categories mentioned
+    assert "Riverside" in result["summary"]
+    assert "Oak Park" in result["summary"]
+
+    # Actions from both playbooks, but no duplicates
+    assert len(result["actions"]) == len(set(result["actions"]))
+
+    # Confidence notes multiple categories
+    assert "2 categories" in result["confidence_note"]
+
+
+def test_empty_incidents_returns_safe_default():
+    """An empty list should return a safe, complete structure."""
+    result = fallback_summarize([])
+
+    assert result["summary"] == "No incidents to summarize."
+    assert result["actions"] == []
+    assert len(result["confidence_note"]) > 0

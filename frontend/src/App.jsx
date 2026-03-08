@@ -171,9 +171,15 @@ export default function App() {
                 </option>
               ))}
             </select>
+            {(search || category || neighborhood || status) && (
+              <button
+                className="btn-clear"
+                onClick={() => { setSearch(""); setCategory(""); setNeighborhood(""); setStatus(""); }}
+              >
+                Clear filters
+              </button>
+            )}
           </div>
-
-          {/* Digest controls */}
           <div className="digest-controls">
             <button className="btn-primary" onClick={fetchDigest} disabled={digestLoading}>
               {digestLoading ? "Generating…" : "Generate Digest"}
