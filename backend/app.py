@@ -7,8 +7,8 @@ from dotenv import load_dotenv
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
-from data_store import get_incidents, add_incident
-from schemas import validate_incident
+from data_store import get_incidents, get_incident_by_id, add_incident, update_incident_status
+from schemas import validate_incident, ALLOWED_STATUSES
 
 load_dotenv()
 
@@ -68,6 +68,39 @@ def create_incident():
 
     incident = add_incident(data)
     return jsonify({"incident": incident}), 201
+
+
+@app.route("/api/incidents/<incident_id>", methods=["GET"])
+def get_incident(incident_id):
+    """Get a single incident by id."""
+    incident = get_incident_by_id(incident_id)
+    if incident is None:
+        return jsonify({"error": f"Incident '{incident_id}' not found."}), 404
+    return jsonify({"incident": incident})
+
+
+@app.route("/api/incidents/<incident_id>/status", methods=["PATCH"])
+def patch_incident_status(incident_id):
+    """Update the status of an incident.
+
+    Expects JSON body: { "status": "acknowledged" }
+    """
+    # Check incident exists
+    if get_incident_by_id(incident_id) is None:
+        return jsonify({"error": f"Incident '{incident_id}' not found."}), 404
+
+    data = request.get_json(silent=True)
+    if not data or "status" not in data:
+        return jsonify({"error": "Request body must include 'status'."}), 400
+
+    new_status = data["status"]
+    if new_status not in ALLOWED_STATUSES:
+        return jsonify({
+            "error": f"Status must be one of: {', '.join(ALLOWED_STATUSES)}."
+        }), 400
+
+    updated = update_incident_status(incident_id, new_status)
+    return jsonify({"incident": updated})
 
 
 if __name__ == "__main__":

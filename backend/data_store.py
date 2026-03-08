@@ -121,5 +121,24 @@ def add_incident(data: dict) -> dict:
     return incident
 
 
+def get_incident_by_id(incident_id: str) -> dict | None:
+    """Return a single incident by id, or None if not found."""
+    for inc in _incidents:
+        if inc.get("id") == incident_id:
+            return inc
+    return None
+
+
+def update_incident_status(incident_id: str, new_status: str) -> dict | None:
+    """Update the status of an incident and persist. Returns updated incident or None."""
+    incident = get_incident_by_id(incident_id)
+    if incident is None:
+        return None
+    incident["status"] = new_status
+    _save_incidents()
+    return incident
+    return incident
+
+
 # Load seed data on first import
 reload()
