@@ -56,6 +56,10 @@ export default function App() {
   // Form visibility
   const [showForm, setShowForm] = useState(false);
 
+  // Detail view state
+  const [selectedId, setSelectedId] = useState(null);
+  const [statusUpdating, setStatusUpdating] = useState(false);
+
   // Digest state
   const [digest, setDigest] = useState(null);
   const [digestLoading, setDigestLoading] = useState(false);
@@ -221,7 +225,11 @@ export default function App() {
 
           <div className="card-grid">
             {incidents.map((inc) => (
-              <div key={inc.id} className="card">
+              <div
+                key={inc.id}
+                className={`card ${selectedId === inc.id ? "card-selected" : ""}`}
+                onClick={() => setSelectedId(selectedId === inc.id ? null : inc.id)}
+              >
                 <div className="card-header">
                   <span className="card-category">{formatLabel(inc.suspected_category)}</span>
                   <span
@@ -232,15 +240,60 @@ export default function App() {
                   </span>
                 </div>
                 <h3 className="card-title">{inc.title}</h3>
-                <p className="card-desc">
-                  {inc.description.length > 140
-                    ? inc.description.slice(0, 140) + "…"
-                    : inc.description}
-                </p>
-                <div className="card-meta">
-                  <span>📍 {inc.neighborhood}</span>
-                  <span>🕐 {new Date(inc.timestamp).toLocaleDateString()}</span>
-                </div>
+                {selectedId !== inc.id && (
+                  <p className="card-desc">
+                    {inc.description.length > 140
+                      ? inc.description.slice(0, 140) + "…"
+                      : inc.description}
+                  </p>
+                )}
+                {selectedId === inc.id && (
+                  <div className="card-detail">
+                    <p className="card-desc-full">{inc.description}</p>
+                    <div className="detail-fields">
+                      <div><strong>Category:</strong> {formatLabel(inc.suspected_category)}</div>
+                      <div><strong>Neighborhood:</strong> {inc.neighborhood}</div>
+                      <div><strong>Source:</strong> {formatLabel(inc.source_type)}</div>
+                      <div><strong>Date:</strong> {new Date(inc.timestamp).toLocaleString()}</div>
+                      <div><strong>ID:</strong> {inc.id}</div>
+                    </div>
+                    <div className="detail-status">
+                      <strong>Update status:</strong>
+                      <div className="status-buttons">
+                        {STATUSES.filter(Boolean).map((s) => (
+                          <button
+                            key={s}
+                            className={`status-btn ${inc.status === s ? "active" : ""}`}
+                            style={inc.status === s ? { backgroundColor: statusColor(s), color: "#fff" } : {}}
+                            disabled={inc.status === s || statusUpdating}
+                            onClick={async (e) => {
+                              e.stopPropagation();
+                              setStatusUpdating(true);
+                              try {
+                                await fetch(`/api/incidents/${inc.id}/status`, {
+                                  method: "PATCH",
+                                  headers: { "Content-Type": "application/json" },
+                                  body: JSON.stringify({ status: s }),
+                                });
+                                fetchIncidents();
+                              } finally {
+                                setStatusUpdating(false);
+                              }
+                            }}
+                          >
+                            {formatLabel(s)}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {selectedId !== inc.id && (
+                  <div className="card-meta">
+                    <span>📍 {inc.neighborhood}</span>
+                    <span>🕐 {new Date(inc.timestamp).toLocaleDateString()}</span>
+                  </div>
+                )}
               </div>
             ))}
           </div>

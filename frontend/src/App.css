@@ -95,10 +95,16 @@ body {
   flex-direction: column;
   gap: 0.5rem;
   transition: box-shadow 0.15s;
+  cursor: pointer;
 }
 
 .card:hover {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.card-selected {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
 }
 
 .card-header {
@@ -139,6 +145,63 @@ body {
   font-size: 0.78rem;
   color: #94a3b8;
   margin-top: auto;
+}
+
+/* ── Card detail (expanded) ── */
+.card-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.card-desc-full {
+  font-size: 0.88rem;
+  color: #334155;
+  line-height: 1.6;
+}
+
+.detail-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35rem 1rem;
+  font-size: 0.82rem;
+  color: #475569;
+}
+
+.detail-status {
+  font-size: 0.85rem;
+}
+
+.status-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.35rem;
+}
+
+.status-btn {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.6rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #f8fafc;
+  color: #334155;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.status-btn:hover:not(:disabled) {
+  background: #e2e8f0;
+}
+
+.status-btn.active {
+  border-color: transparent;
+  cursor: default;
+}
+
+.status-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
 }
 
 /* ── Digest ── */
